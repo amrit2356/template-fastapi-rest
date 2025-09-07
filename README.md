@@ -495,14 +495,22 @@ tests/
 
 ## 🤝 Contributing
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Make your changes
-4. Add tests for new functionality
-5. Ensure all tests pass and code is formatted
-6. Commit your changes (`git commit -m 'Add amazing feature'`)
-7. Push to the branch (`git push origin feature/amazing-feature`)
-8. Open a Pull Request
+We welcome contributions from the community! This project follows a comprehensive contribution process to ensure quality and maintainability.
+
+### Quick Start for Contributors
+
+1. **Fork and Clone**: Fork the repository and clone your fork
+2. **Setup Environment**: Follow the development setup in [CONTRIBUTING.md](.github/CONTRIBUTING.md)
+3. **Create Branch**: Create a feature branch for your changes
+4. **Make Changes**: Implement your changes with tests
+5. **Submit PR**: Create a pull request following our guidelines
+
+### Key Guidelines
+
+- **Code of Conduct**: Please read and follow our [Code of Conduct](.github/CODE_OF_CONDUCT.md)
+- **Security**: Report security vulnerabilities privately - see [Security Policy](.github/SECURITY.md)
+- **Testing**: Maintain test coverage and follow testing guidelines
+- **Documentation**: Update documentation for any API or configuration changes
 
 ### Development Setup
 
@@ -510,16 +518,45 @@ tests/
 # Install development dependencies
 uv sync --dev
 
+# Install pre-commit hooks
+pre-commit install
+
 # Run tests
 pytest
 
 # Format code
-black src/
-isort src/
-
-# Type checking
-mypy src/
+black src/ tests/
+isort src/ tests/
 ```
+
+### Detailed Information
+
+For comprehensive contribution guidelines, development setup, and community standards, please refer to:
+
+- **[CONTRIBUTING.md](.github/CONTRIBUTING.md)** - Complete contribution guide with development setup, code standards, and PR process
+- **[CODE_OF_CONDUCT.md](.github/CODE_OF_CONDUCT.md)** - Community standards and enforcement guidelines
+- **[SECURITY.md](.github/SECURITY.md)** - Security policy and vulnerability reporting procedures
+
+## 🔒 Security
+
+### Security Policy
+
+We take security seriously and have established comprehensive security measures:
+
+- **Vulnerability Reporting**: Report security issues privately via email (see [Security Policy](.github/SECURITY.md))
+- **Security Updates**: Regular dependency updates and security patches
+- **Code Review**: All changes require code review and security assessment
+- **Access Control**: Proper authentication and authorization mechanisms
+
+### Security Best Practices
+
+- Keep dependencies updated
+- Use strong authentication methods
+- Follow secure coding practices
+- Never commit secrets or sensitive data
+- Report vulnerabilities responsibly
+
+For detailed security information, incident response procedures, and vulnerability reporting, see our [Security Policy](.github/SECURITY.md).
 
 ## 📄 License
 
