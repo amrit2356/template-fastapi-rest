@@ -2,11 +2,11 @@ import os
 from typing import Any, Dict, Optional
 from pathlib import Path
 
-from src.utils.config.lib.loaders import ConfigLoaderFactory
-from src.utils.config.lib.processors import ConfigProcessorChain, EnvironmentVariableProcessor, SecretsProcessor
-from src.utils.config.lib.validators import ConfigValidatorChain, DirectoryValidator, ProductionValidator
-from src.utils.config.lib.providers import BaseConfigProvider
-from src.utils.config.lib.section_providers import *
+from src.utils.config.modules.loaders import ConfigLoaderFactory
+from src.utils.config.modules.processors import ConfigProcessorChain, EnvironmentVariableProcessor, SecretsProcessor
+from src.utils.config.modules.validators import ConfigValidatorChain, DirectoryValidator, ProductionValidator
+from src.utils.config.modules.providers import BaseConfigProvider
+from src.utils.config.modules.section_providers import *
 
 class SettingsManager:
     """
