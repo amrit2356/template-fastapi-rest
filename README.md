@@ -150,7 +150,7 @@ template-fastapi-rest/
 │       │   ├── reader.py     # File readers
 │       │   └── writer.py     # File writers
 │       └── auth/             # Authentication utilities
-├── data/                     # Application data directory
+├── runtime/                     # Application data directory
 │   ├── temp/                 # Temporary files
 │   ├── outputs/              # Output files
 │   ├── logs/                 # Log files
@@ -177,8 +177,8 @@ app:
   description: "FastAPI AI Server with AI Processing"
   debug: false
   environment: "development"
-  temp_dir: "data/temp"
-  assets_dir: "data/assets"
+  temp_dir: "runtime/temp"
+  assets_dir: "runtime/assets"
 
 # Server Configuration
 server:
@@ -209,9 +209,9 @@ server_manager:
     name: "FastAPI AI Server"
     version: "1.0.0"
   directories:
-    temp: "./data/temp"
-    outputs: "./data/outputs"
-    logs: "./data/logs"
+    temp: "./runtime/temp"
+    outputs: "./runtime/outputs"
+    logs: "./runtime/logs"
   housekeeping:
     enabled: true
     interval: 600

@@ -61,9 +61,9 @@ class ProcessManagerConfig:
         
         # Get directories configuration
         dirs_config = settings.get_process_manager_directories_config()
-        self.temp_dir = dirs_config.get("temp", "./data/temp")
-        self.output_dir = dirs_config.get("outputs", "./data/outputs")
-        self.logs_dir = dirs_config.get("logs", "./data/logs/process_manager")
+        self.temp_dir = dirs_config.get("temp", "./runtime/temp")
+        self.output_dir = dirs_config.get("outputs", "./runtime/outputs")
+        self.logs_dir = dirs_config.get("logs", "./runtime/logs/process_manager")
         
         # Get cleanup configuration
         cleanup_config = settings.get_process_manager_cleanup_config()

@@ -30,9 +30,9 @@ class ServiceConfig:
 class ServerConfig:
     """Configuration for the server manager"""
     app_name: str = "FastAPI AI Server"
-    temp_dir: str = "./data/temp"
-    outputs_dir: str = "./data/outputs"
-    logs_dir: str = "./data/logs"
+    temp_dir: str = "./runtime/temp"
+    outputs_dir: str = "./runtime/outputs"
+    logs_dir: str = "./runtime/logs"
     housekeeping_interval: int = 600  # 10 minutes
     force_cleanup_on_startup: bool = True
     force_cleanup_on_shutdown: bool = True
@@ -220,9 +220,9 @@ class ServerManager:
         
         return ServerConfig(
             app_name=app_config.get("name", "FastAPI AI Server"),
-            temp_dir=app_config.get("temp_dir", "./data/temp"),
-            outputs_dir=app_config.get("outputs_dir", "./data/outputs"),
-            logs_dir=app_config.get("logs_dir", "./data/logs"),
+            temp_dir=app_config.get("temp_dir", "./runtime/temp"),
+            outputs_dir=app_config.get("outputs_dir", "./runtime/outputs"),
+            logs_dir=app_config.get("logs_dir", "./runtime/logs"),
             housekeeping_interval=app_config.get("housekeeping_interval", 600),
             force_cleanup_on_startup=app_config.get("force_cleanup_on_startup", True),
             force_cleanup_on_shutdown=app_config.get("force_cleanup_on_shutdown", True),

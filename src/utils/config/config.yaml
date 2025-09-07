@@ -5,8 +5,8 @@ app:
   description: "FastAPI AI Server with AI Processing"
   debug: false
   environment: "development"  # production, development, testing
-  temp_dir: "data/temp"
-  assets_dir: "data/assets"
+  temp_dir: "runtime/temp"
+  assets_dir: "runtime/assets"
   max_file_size: "10MB"
   allowed_file_types: ["jpg", "jpeg", "png", "pdf", "txt"]
 
@@ -30,12 +30,12 @@ server_manager:
   
   # Directory configuration
   directories:
-    temp: "./data/temp"
-    outputs: "./data/outputs"
-    logs: "./data/logs"
-    models: "./data/models"
-    uploads: "./data/uploads"
-    assets: "./data/assets"
+    temp: "./runtime/temp"
+    outputs: "./runtime/outputs"
+    logs: "./runtime/logs"
+    models: "./runtime/models"
+    uploads: "./runtime/uploads"
+    assets: "./runtime/assets"
   
   # Housekeeping configuration
   housekeeping:
@@ -79,7 +79,7 @@ server_manager:
       dependencies: []
       config:
         model_list: []
-        download_path: "./data/models"
+        download_path: "./runtime/models"
         auto_download: false
         retry_attempts: 3
         retry_delay: 5.0
@@ -140,9 +140,9 @@ process_manager:
   
   # Directories
   directories:
-    temp: "./data/temp"
-    outputs: "./data/outputs"
-    logs: "./data/logs/process_manager"
+    temp: "./runtime/temp"
+    outputs: "./runtime/outputs"
+    logs: "./runtime/logs/process_manager"
   
   # Performance settings
   performance:
@@ -193,7 +193,7 @@ logging:
   handlers:
     - console
     - file
-  file_path: "data/logs/app.log"
+  file_path: "runtime/logs/app.log"
   file_max_size: "50MB"
   file_backup_count: 5
   console_format: "%(levelname)s - %(message)s"
@@ -201,7 +201,7 @@ logging:
 # Storage Configuration (for file uploads)
 storage:
   type: "local"  # local, s3, gcs
-  local_path: "data/uploads"
+  local_path: "runtime/uploads"
   max_file_size: "10MB"
   allowed_extensions: ["jpg", "jpeg", "png", "pdf", "txt", "doc", "docx"]
 
