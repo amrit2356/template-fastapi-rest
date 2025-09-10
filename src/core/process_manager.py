@@ -320,10 +320,10 @@ class ProcessManager(ABC):
                 if self.config.log_process_events:
                     logger.info(f"Cleaned up expired process: {process_id}")
     
-    async def cleanup_orphaned_files(self) -> None:
+    async def cleanup_orphaned_files(self) -> int:
         """Clean up orphaned files"""
         if not self.config.enable_file_tracking:
-            return
+            return 0
             
         # Get all tracked files
         tracked_files = set()
@@ -338,6 +338,8 @@ class ProcessManager(ABC):
         
         if self.config.enable_metrics:
             self._metrics["files_cleaned"] += temp_cleaned + output_cleaned
+        
+        return temp_cleaned + output_cleaned
     
     async def _cleanup_directory(self, directory: str, tracked_files: set) -> int:
         """Clean up orphaned files in a directory"""

@@ -1,5 +1,4 @@
 # main.py
-import sys
 import uvicorn
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
