@@ -8,9 +8,9 @@ instances that are stored in the FastAPI application state during the lifespan e
 from typing import Optional
 from fastapi import Request, HTTPException
 
-from src.core.server_manager import ServerManager
-from src.core.process_manager import ProcessManager
-from src.utils.resources.logger import logger
+from .server_manager import ServerManager
+from .process_manager import ProcessManager
+from ..utils.resources.logger import logger
 
 
 def get_server_manager(request: Request) -> Optional[ServerManager]:

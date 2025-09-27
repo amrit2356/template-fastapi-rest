@@ -10,9 +10,9 @@ from typing import Any, Dict, List, Optional, Callable, Union
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from src.utils.resources.logger import logger
-from src.utils.config.settings import settings
-from src.core.process_manager import ProcessManager, create_process_manager
+from ..utils.resources.logger import logger
+from ..utils.config.settings import settings
+from .process_manager import ProcessManager, create_process_manager
 
 
 @dataclass
@@ -63,56 +63,6 @@ class AIService(ABC):
     def get_status(self) -> Dict[str, Any]:
         """Get service status information"""
         pass
-
-
-class ModelDownloaderService(AIService):
-    """Service for downloading AI models"""
-    
-    def __init__(self, config: ServiceConfig, device: Optional[str] = None):
-        super().__init__(config, device)
-        self.downloaded_models: List[str] = []
-    
-    async def initialize(self) -> bool:
-        """Initialize model downloader"""
-        try:
-            logger.info(f"Initializing {self.config.name}")
-            
-            # Import model downloader if available
-            try:
-                from src.utils.resources.downloader import ModelDownloader
-                
-                # Get model list from config
-                model_list = self.config.config.get("model_list", [])
-                if model_list:
-                    model_downloader = ModelDownloader()
-                    model_downloader.download_multiple_objects(model_list)
-                    self.downloaded_models = model_list
-                    logger.info(f"Downloaded {len(model_list)} models")
-                
-                self.is_initialized = True
-                return True
-            except ImportError:
-                logger.warning("ModelDownloader not available, skipping model downloads")
-                self.is_initialized = True
-                return True
-                
-        except Exception as e:
-            logger.error(f"Error initializing {self.config.name}: {str(e)}", exc_info=True)
-            return False
-    
-    async def shutdown(self) -> None:
-        """Shutdown model downloader"""
-        logger.info(f"Shutting down {self.config.name}")
-        self.is_shutting_down = True
-    
-    def get_status(self) -> Dict[str, Any]:
-        """Get model downloader status"""
-        return {
-            "name": self.config.name,
-            "initialized": self.is_initialized,
-            "downloaded_models": len(self.downloaded_models),
-            "models": self.downloaded_models
-        }
 
 
 class DeviceManager:

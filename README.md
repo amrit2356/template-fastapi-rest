@@ -8,10 +8,11 @@
 ![Configuration](https://img.shields.io/badge/Configuration-Advanced-green.svg)
 ![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)
 
-A production-ready FastAPI REST template with comprehensive server management, process orchestration, and advanced configuration management. Built with clean architecture principles, featuring both stateless and stateful process management modes, comprehensive logging, and enterprise-grade configuration handling.
+A production-ready FastAPI REST template with streamlined API design, comprehensive server management, and plug-and-play architecture. Built with clean architecture principles, featuring 8 focused endpoints, dynamic endpoint discovery, and enterprise-grade configuration handling.
 
 ## ✨ Features
 
+- 🚀 **Streamlined API**: 8 production-ready endpoints with clear utility and purpose
 - 🔧 **Advanced Configuration**: YAML-based configuration with environment variable overrides and validation
 - 📊 **Process Management**: Both stateful and stateless process management with automatic cleanup
 - 🏗️ **Server Management**: Comprehensive server lifecycle with graceful shutdown and signal handling
@@ -20,9 +21,37 @@ A production-ready FastAPI REST template with comprehensive server management, p
 - 📁 **File Management**: Intelligent file tracking and cleanup with orphaned file detection
 - 🎯 **Clean Architecture**: Modular design with clear separation of concerns
 - ⚡ **Performance Monitoring**: Built-in metrics and health checks
+- 🔌 **Plugin Architecture**: Ready for database, monitoring, and cloud service plugins
 - 🛠️ **Development Tools**: Comprehensive testing setup and development utilities
 
-##  Quick Start
+## 📋 Table of Contents
+
+### Core Documentation
+- [Quick Start](#-quick-start) - Get up and running in minutes
+- [Project Structure](#-project-structure) - Understanding the codebase
+- [Configuration](#️-configuration) - Comprehensive configuration guide
+- [API Documentation](#-api-documentation) - Production-ready API endpoints
+- [Advanced Usage](#️-advanced-usage) - Custom services and process management
+
+### Development & Deployment
+- [Environment Variables](#-environment-variables) - Configuration reference
+- [Production Deployment](#-production-deployment) - Production considerations
+- [Monitoring & Metrics](#-monitoring--metrics) - Built-in monitoring capabilities
+- [Testing](#-testing) - Comprehensive testing guide
+- [Troubleshooting](#-troubleshooting) - Common issues and solutions
+
+### Community & Support
+- [Contributing](#-contributing) - How to contribute to the project
+- [Security](#-security) - Security policy and best practices
+- [License](#-license) - MIT License information
+- [Acknowledgments](#-acknowledgments) - Credits and inspiration
+
+### Additional Resources
+- [.github/CONTRIBUTING.md](.github/CONTRIBUTING.md) - Detailed contribution guidelines
+- [.github/CODE_OF_CONDUCT.md](.github/CODE_OF_CONDUCT.md) - Community standards
+- [.github/SECURITY.md](.github/SECURITY.md) - Security policy and reporting
+
+## 🚀 Quick Start
 
 ### 1. Installation
 
@@ -78,6 +107,9 @@ app:
   description: "FastAPI AI Server with AI Processing"
   debug: false
   environment: "development"
+  # API Configuration (universal for the whole app)
+  api_prefix: "/api/v1"
+  api_tags: ["API"]
 
 server:
   host: "0.0.0.0"
@@ -101,6 +133,19 @@ server_manager:
   housekeeping:
     enabled: true
     interval: 600  # 10 minutes
+  services:
+    # Core API services
+    item_service:
+      enabled: true
+      config:
+        max_items: 10000
+        auto_cleanup: true
+    
+    document_service:
+      enabled: true
+      config:
+        max_file_size: 104857600  # 100MB
+        allowed_extensions: [".pdf", ".doc", ".docx", ".txt", ".md", ".jpg", ".png"]
 ```
 
 ### 4. Run the Application
@@ -114,6 +159,7 @@ uv run python app.py
 
 # The server will start on http://localhost:8000
 # Visit http://localhost:8000/docs for interactive API documentation
+# Visit http://localhost:8000/ for comprehensive template information
 ```
 
 ## 📁 Project Structure
@@ -124,19 +170,19 @@ template-fastapi-rest/
 ├── pyproject.toml            # Project configuration and dependencies
 ├── README.md                 # This file
 ├── LICENSE                   # MIT License
+├── PRODUCTION_API.md         # Streamlined API documentation
+├── API_INTEGRATION.md        # API integration guide
 ├── src/
-│   ├── api/                  # API layer
-│   │   ├── routes.py         # REST API endpoints
-│   │   ├── handlers.py       # Request handlers
-│   │   ├── models.py         # Data models
-│   │   └── schema.py         # Pydantic schemas
-│   ├── core/                 # Core application logic
+│   ├── api/                  # Streamlined API layer (8 endpoints)
+│   │   ├── routes.py         # Production-ready REST endpoints
+│   │   ├── handlers.py       # Request handlers with session tracking
+│   │   └── models.py         # Essential data models (5 models)
+│   ├── core/                 # Core application engine
 │   │   ├── server_manager.py # Server lifecycle management
 │   │   ├── process_manager.py # Process orchestration
 │   │   └── managers.py       # Manager utilities
 │   ├── services/             # Business logic services
-│   │   ├── orchestrator.py   # Service orchestration
-│   │   └── pipelines/        # Processing pipelines
+│   │   └── services.py       # Generic service implementation
 │   └── utils/                # Utilities and helpers
 │       ├── config/           # Configuration management
 │       │   ├── config.yaml   # Default configuration
@@ -146,21 +192,76 @@ template-fastapi-rest/
 │       │   ├── logger.py     # Logging configuration
 │       │   ├── downloader.py # Resource downloader
 │       │   └── helper.py     # Helper utilities
-│       ├── io/               # Input/Output utilities
-│       │   ├── reader.py     # File readers
-│       │   └── writer.py     # File writers
-│       └── auth/             # Authentication utilities
-├── runtime/                     # Application data directory
+│       └── io/               # Input/Output utilities
+│           ├── reader.py     # File readers
+│           └── writer.py     # File writers
+├── runtime/                  # Application data directory
 │   ├── temp/                 # Temporary files
 │   ├── outputs/              # Output files
 │   ├── logs/                 # Log files
 │   ├── models/               # AI models
 │   ├── uploads/              # Uploaded files
 │   └── assets/               # Static assets
-└── tests/                    # Test suite
-    ├── unit/                 # Unit tests
-    ├── integration/          # Integration tests
-    └── e2e/                  # End-to-end tests
+├── tests/                    # Test suite
+│   ├── conftest.py           # Test configuration
+│   ├── unit/                 # Unit tests
+│   ├── integration/          # Integration tests
+│   └── e2e/                  # End-to-end tests
+└── .github/                  # GitHub templates and workflows
+    ├── CONTRIBUTING.md       # Contribution guidelines
+    ├── CODE_OF_CONDUCT.md    # Community standards
+    └── SECURITY.md           # Security policy
+```
+
+## 🎯 API Documentation
+
+### Production-Ready Endpoints
+
+The template provides **8 focused, production-ready endpoints**:
+
+#### Health & Monitoring
+- `GET /api/v1/health` - Service health check with detailed status
+- `GET /api/v1/status` - System status and metrics
+- `GET /api/v1/info` - API information and available endpoints
+
+#### Data Operations
+- `POST /api/v1/data` - Create data item
+- `GET /api/v1/data/{id}` - Get data item by ID
+- `PUT /api/v1/data/{id}` - Update data item
+- `DELETE /api/v1/data/{id}` - Delete data item
+
+#### File Operations
+- `POST /api/v1/upload` - Upload file with validation
+
+#### Root Information
+- `GET /` - Comprehensive template information with dynamic endpoint discovery
+
+### Key Features
+
+- **Session Tracking**: Every request includes a unique session ID for debugging
+- **Error Handling**: Proper HTTP status codes and error responses
+- **File Upload**: Local file storage with validation
+- **Dynamic Discovery**: Automatic endpoint discovery and categorization
+- **Health Monitoring**: Comprehensive service status and metrics
+
+### Example Usage
+
+```bash
+# Health check
+curl -X GET "http://localhost:8000/api/v1/health"
+
+# Create data
+curl -X POST "http://localhost:8000/api/v1/data" \
+  -H "Content-Type: application/json" \
+  -d '{"data": {"name": "example", "value": 123}, "project_id": "my-project"}'
+
+# Upload file
+curl -X POST "http://localhost:8000/api/v1/upload" \
+  -F "file=@document.pdf" \
+  -F "project_id=my-project"
+
+# Get template information
+curl -X GET "http://localhost:8000/"
 ```
 
 ## ⚙️ Configuration
@@ -179,6 +280,11 @@ app:
   environment: "development"
   temp_dir: "runtime/temp"
   assets_dir: "runtime/assets"
+  max_file_size: "10MB"
+  allowed_file_types: ["jpg", "jpeg", "png", "pdf", "txt"]
+  # API Configuration (universal for the whole app)
+  api_prefix: "/api/v1"
+  api_tags: ["API"]
 
 # Server Configuration
 server:
@@ -218,6 +324,19 @@ server_manager:
   cleanup:
     force_on_startup: true
     force_on_shutdown: true
+  services:
+    # Core API services
+    item_service:
+      enabled: true
+      config:
+        max_items: 10000
+        auto_cleanup: true
+    
+    document_service:
+      enabled: true
+      config:
+        max_file_size: 104857600  # 100MB
+        allowed_extensions: [".pdf", ".doc", ".docx", ".txt", ".md", ".jpg", ".png"]
 ```
 
 ### Process Management Options
@@ -414,10 +533,13 @@ export JWT_SECRET_KEY=your_secure_secret_key
 
 ```bash
 # Set up health check monitoring
-curl -f http://localhost:8000/status || exit 1
+curl -f http://localhost:8000/api/v1/health || exit 1
 
 # Monitor process metrics
 curl http://localhost:8000/status | jq '.process_metrics'
+
+# Get comprehensive template information
+curl http://localhost:8000/ | jq '.template_info'
 ```
 
 ## 🐛 Troubleshooting
@@ -458,6 +580,9 @@ watch -n 5 'curl -s http://localhost:8000/status | jq .'
 
 # Check process manager status
 curl http://localhost:8000/status | jq '.process_metrics'
+
+# Get dynamic endpoint information
+curl http://localhost:8000/ | jq '.api.endpoints'
 ```
 
 ## 🧪 Testing
@@ -562,7 +687,7 @@ For detailed security information, incident response procedures, and vulnerabili
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-##  Acknowledgments
+## 🙏 Acknowledgments
 
 - Built with [FastAPI](https://fastapi.tiangolo.com/) for high-performance web APIs
 - Configuration management inspired by modern microservice patterns
@@ -572,14 +697,14 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ---
 
 ## 📈 Roadmap
-
-- [ ] Docker containerization for easy deployment
-- [ ] Kubernetes deployment manifests
-- [ ] Advanced metrics and monitoring dashboard
-- [ ] Database integration examples
-- [ ] Authentication and authorization examples
-- [ ] WebSocket support
-- [ ] GraphQL API support
-- [ ] Advanced caching strategies
-- [ ] Rate limiting implementation
-- [ ] API versioning examples
+- [ ] **Github Actions: Testing, Deployment, AutoDocumentation**
+- [ ] **Detailed Documentation with jupyter-notebook tutorials**
+- [ ] **Detailed Testing for the API system**
+- [ ] **Plugin Architecture: Database, monitoring, and cloud service plugins**
+- [ ] **Kubernetes deployment manifests**
+- [ ] **Advanced metrics and monitoring dashboard**
+- [ ] **Database integration examples**
+- [ ] **Authentication and authorization examples**
+- [ ] **Advanced caching strategies**
+- [ ] **Rate limiting implementation**
+- [ ] **API versioning examples**

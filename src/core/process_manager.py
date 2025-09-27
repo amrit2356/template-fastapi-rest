@@ -12,8 +12,8 @@ from pathlib import Path
 from collections import OrderedDict
 from enum import Enum
 
-from src.utils.resources.logger import logger
-from src.utils.config.settings import settings
+from ..utils.resources.logger import logger
+from ..utils.config.settings import settings
 
 
 class ProcessState(Enum):
