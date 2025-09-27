@@ -4,7 +4,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 
-from src.api.routes import router, root_router, get_dynamic_endpoints
+from src.api.routes import router, root_router
 # Direct service registration without separate initialization module
 from src.core.server_manager import create_server_manager, ServerManager
 from src.core.process_manager import create_process_manager, ProcessManager
@@ -116,15 +116,6 @@ if cors_config:
 # Include API routes
 app.include_router(router)
 app.include_router(root_router)
-
-
-# Custom shutdown handler for uvicorn
-def handle_exit(sig, frame):
-    """
-    Custom signal handler for uvicorn to ensure proper shutdown
-    """
-    logger.info(f"Received exit signal in uvicorn process")
-    # Don't call sys.exit() here as it will be handled by the lifespan
 
 
 # Run the application if executed directly

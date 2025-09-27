@@ -6,14 +6,13 @@ from .routes import router, root_router, get_dynamic_endpoints
 from .handlers import GenericHandler, get_generic_handler
 from .models import (
     BaseResponse,
-    HealthResponse,
-    ProcessRequest,
-    ProcessResponse,
-    ProcessStatusResponse,
+    HealthCheckResponse,
+    GenericRequest,
+    ItemResponse,
+    FileUploadRequest,
     FileUploadResponse,
-    ErrorResponse,
-    ProcessState,
-    ProcessType
+    ErrorDetail,
+    HealthStatus
 )
 
 __all__ = [
@@ -23,12 +22,11 @@ __all__ = [
     "GenericHandler", 
     "get_generic_handler",
     "BaseResponse",
-    "HealthResponse",
-    "ProcessRequest",
-    "ProcessResponse", 
-    "ProcessStatusResponse",
+    "HealthCheckResponse",
+    "GenericRequest",
+    "ItemResponse",
+    "FileUploadRequest",
     "FileUploadResponse",
-    "ErrorResponse",
-    "ProcessState",
-    "ProcessType"
+    "ErrorDetail",
+    "HealthStatus"
 ]

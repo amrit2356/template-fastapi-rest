@@ -4,7 +4,7 @@ app:
   version: "1.0.0"
   description: "FastAPI AI Server with AI Processing"
   debug: false
-  environment: "development"  # production, development, testing
+  environment: "production"  # production, development, testing
   temp_dir: "runtime/temp"
   assets_dir: "runtime/assets"
   max_file_size: "10MB"
