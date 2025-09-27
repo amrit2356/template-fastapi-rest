@@ -2,7 +2,7 @@
 API module for the FastAPI REST API Template
 """
 
-from .routes import router, get_dynamic_endpoints
+from .routes import router, root_router, get_dynamic_endpoints
 from .handlers import GenericHandler, get_generic_handler
 from .models import (
     BaseResponse,
@@ -18,6 +18,7 @@ from .models import (
 
 __all__ = [
     "router",
+    "root_router",
     "get_dynamic_endpoints",
     "GenericHandler", 
     "get_generic_handler",
