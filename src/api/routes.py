@@ -29,7 +29,16 @@ UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 
 # --- Core Production Endpoints ---
 
-@router.get("/health", response_model=HealthCheckResponse, summary="Health Check")
+@router.get(
+    "/health",
+    summary="Health Check",
+    description="Comprehensive health check endpoint that verifies service status, system information, and all registered services.",
+    response_model=HealthCheckResponse,
+    responses={
+        200: {"model": HealthCheckResponse, "description": "Service is healthy and operational."},
+        500: {"model": ErrorDetail, "description": "Health check failed due to internal error."},
+    },
+)
 async def health_check(request: Request):
     """
     Production health check endpoint.
@@ -62,7 +71,17 @@ async def health_check(request: Request):
         logger.error(f"Health check failed: {e}")
         raise HTTPException(status_code=500, detail="Health check failed")
 
-@router.post("/data", response_model=ItemResponse, summary="Create Data")
+@router.post(
+    "/data",
+    summary="Create Data",
+    description="Creates a new data item in the system. Accepts generic data payload and optional project ID for organization and tracking. Returns the created item with confirmation details.",
+    response_model=ItemResponse,
+    responses={
+        200: {"model": ItemResponse, "description": "Data item created successfully."},
+        400: {"model": ErrorDetail, "description": "Invalid request data or validation error."},
+        500: {"model": ErrorDetail, "description": "Internal server error during creation."},
+    },
+)
 async def create_data(
     request_data: GenericRequest,
     request: Request,
@@ -74,7 +93,17 @@ async def create_data(
     """
     return await handler.create_item(request_data, request)
 
-@router.get("/data/{item_id}", response_model=ItemResponse, summary="Get Data")
+@router.get(
+    "/data/{item_id}",
+    summary="Get Data",
+    description="Retrieves a specific data item by its unique identifier. Returns the complete item data along with status information. Useful for fetching individual records and data validation.",
+    response_model=ItemResponse,
+    responses={
+        200: {"model": ItemResponse, "description": "Data item retrieved successfully."},
+        404: {"model": ErrorDetail, "description": "Data item not found."},
+        500: {"model": ErrorDetail, "description": "Internal server error during retrieval."},
+    },
+)
 async def get_data(
     item_id: str,
     request: Request,
@@ -86,7 +115,18 @@ async def get_data(
     """
     return await handler.get_item(item_id, request)
 
-@router.put("/data/{item_id}", response_model=ItemResponse, summary="Update Data")
+@router.put(
+    "/data/{item_id}",
+    summary="Update Data",
+    description="Updates an existing data item with new information. Accepts the item ID and updated data payload. Returns the modified item with confirmation of changes made.",
+    response_model=ItemResponse,
+    responses={
+        200: {"model": ItemResponse, "description": "Data item updated successfully."},
+        400: {"model": ErrorDetail, "description": "Invalid request data or validation error."},
+        404: {"model": ErrorDetail, "description": "Data item not found."},
+        500: {"model": ErrorDetail, "description": "Internal server error during update."},
+    },
+)
 async def update_data(
     item_id: str,
     request_data: GenericRequest,
@@ -99,7 +139,16 @@ async def update_data(
     """
     return await handler.update_item(item_id, request_data, request)
 
-@router.delete("/data/{item_id}", summary="Delete Data")
+@router.delete(
+    "/data/{item_id}",
+    summary="Delete Data",
+    description="Permanently removes a data item from the system by its unique identifier. Returns confirmation of successful deletion. This action cannot be undone.",
+    responses={
+        200: {"description": "Data item deleted successfully."},
+        404: {"model": ErrorDetail, "description": "Data item not found."},
+        500: {"model": ErrorDetail, "description": "Internal server error during deletion."},
+    },
+)
 async def delete_data(
     item_id: str,
     request: Request,
@@ -111,7 +160,18 @@ async def delete_data(
     """
     return await handler.delete_item(item_id, request)
 
-@router.post("/upload", response_model=FileUploadResponse, summary="Upload File")
+@router.post(
+    "/upload",
+    summary="Upload File",
+    description="Uploads a file to the system with optional custom filename. Accepts multipart form data with file content and project ID. Returns file metadata including ID, size, and storage path.",
+    response_model=FileUploadResponse,
+    responses={
+        200: {"model": FileUploadResponse, "description": "File uploaded successfully."},
+        400: {"model": ErrorDetail, "description": "Invalid file or request data."},
+        413: {"model": ErrorDetail, "description": "File too large."},
+        500: {"model": ErrorDetail, "description": "Internal server error during upload."},
+    },
+)
 async def upload_file(
     request: Request,
     file: UploadFile = File(..., description="File to upload"),
@@ -129,7 +189,15 @@ async def upload_file(
     )
     return await handler.upload_file(file, request_data, request)
 
-@router.get("/status", summary="System Status")
+@router.get(
+    "/status",
+    summary="System Status",
+    description="Retrieves comprehensive system status and operational metrics. Provides real-time information about server health, active processes, and service statuses for monitoring and diagnostics.",
+    responses={
+        200: {"description": "System status retrieved successfully.", "content": {"application/json": {"example": {"status": "operational", "timestamp": 1234567890.123, "server": {}, "processes": {}, "services": {}}}}},
+        500: {"model": ErrorDetail, "description": "Status check failed due to internal error."},
+    },
+)
 async def get_status(request: Request):
     """
     Get system status and metrics.
@@ -153,29 +221,6 @@ async def get_status(request: Request):
         raise HTTPException(status_code=500, detail="Status check failed")
 
 # --- Utility Endpoints ---
-
-@router.get("/info", summary="API Information")
-async def get_api_info():
-    """
-    Get API information and available endpoints.
-    """
-    return {
-        "name": settings.get("app.name", "FastAPI Service"),
-        "version": settings.get("app.version", "1.0.0"),
-        "description": "Production-ready API service",
-        "endpoints": {
-            "health": "GET /health - Service health check",
-            "create": "POST /data - Create data item",
-            "get": "GET /data/{id} - Get data item",
-            "update": "PUT /data/{id} - Update data item", 
-            "delete": "DELETE /data/{id} - Delete data item",
-            "upload": "POST /upload - Upload file",
-            "status": "GET /status - System status",
-            "info": "GET /info - API information"
-        }
-    }
-
-
 def get_dynamic_endpoints():
     """
     Dynamically extracts endpoint information from the FastAPI router.
