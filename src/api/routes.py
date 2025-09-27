@@ -8,8 +8,8 @@ from typing import Optional, Dict, Any
 from fastapi import APIRouter, Depends, File, Form, Request, UploadFile, HTTPException
 from fastapi.responses import JSONResponse
 
-from src.api.handlers import GenericHandler, get_generic_handler
-from src.api.models import (
+from .handlers import GenericHandler, get_generic_handler
+from .models import (
     ErrorDetail, 
     GenericRequest, 
     ItemResponse,
@@ -17,8 +17,8 @@ from src.api.models import (
     FileUploadRequest,
     FileUploadResponse
 )
-from src.utils.config.settings import settings
-from src.utils.resources.logger import logger
+from ..utils.config.settings import settings
+from ..utils.resources.logger import logger
 
 # Initialize router
 router = APIRouter(prefix=settings.get_api_prefix(), tags=settings.get_api_tags())
@@ -45,7 +45,7 @@ async def health_check(request: Request):
     Returns service status and system information.
     """
     try:
-        from src.core.managers import get_server_manager, get_process_manager
+        from ..core.managers import get_server_manager, get_process_manager
         
         server_mgr = get_server_manager(request)
         process_mgr = get_process_manager(request)
@@ -204,7 +204,7 @@ async def get_status(request: Request):
     Production endpoint for monitoring.
     """
     try:
-        from src.core.managers import get_server_manager, get_process_manager
+        from ..core.managers import get_server_manager, get_process_manager
         
         server_mgr = get_server_manager(request)
         process_mgr = get_process_manager(request)

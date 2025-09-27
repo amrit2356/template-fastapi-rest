@@ -7,13 +7,13 @@ from fastapi import Request, HTTPException, UploadFile
 from pathlib import Path
 from typing import Optional, Dict, Any
 
-from src.core.managers import get_server_manager, get_process_manager
-from src.api.models import (
+from ..core.managers import get_server_manager, get_process_manager
+from .models import (
     GenericRequest, ItemResponse, HealthStatus, FileUploadRequest, FileUploadResponse
 )
-from src.services.services import GenericService
-from src.utils.resources.logger import logger
-from src.utils.config.settings import settings
+from ..services.services import GenericService
+from ..utils.resources.logger import logger
+from ..utils.config.settings import settings
 
 class GenericHandler:
     """Simplified handler for core operations."""

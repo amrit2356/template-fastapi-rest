@@ -10,9 +10,9 @@ from typing import Any, Dict, List, Optional, Callable, Union
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from src.utils.resources.logger import logger
-from src.utils.config.settings import settings
-from src.core.process_manager import ProcessManager, create_process_manager
+from ..utils.resources.logger import logger
+from ..utils.config.settings import settings
+from .process_manager import ProcessManager, create_process_manager
 
 
 @dataclass

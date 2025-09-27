@@ -1,5 +1,5 @@
 from typing import Any, Dict
-from src.utils.config.modules.providers import BaseConfigProvider
+from .providers import BaseConfigProvider
 
 
 class AppConfigProvider(BaseConfigProvider):
