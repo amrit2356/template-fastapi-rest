@@ -697,8 +697,10 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ---
 
 ## 📈 Roadmap
-
-- [ ] **Plugin Architecture**: Database, monitoring, and cloud service plugins
+- [ ] **Github Actions: Testing, Deployment, AutoDocumentation**
+- [ ] **Detailed Documentation with jupyter-notebook tutorials**
+- [ ] **Detailed Testing for the API system**
+- [ ] **Plugin Architecture: Database, monitoring, and cloud service plugins**
 - [ ] **Kubernetes deployment manifests**
 - [ ] **Advanced metrics and monitoring dashboard**
 - [ ] **Database integration examples**
