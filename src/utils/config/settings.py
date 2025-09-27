@@ -1,5 +1,5 @@
 import os
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, List
 from pathlib import Path
 
 from src.utils.config.modules.loaders import ConfigLoaderFactory
@@ -240,6 +240,22 @@ class SettingsManager:
     def get_process_manager_monitoring_config(self) -> Dict[str, Any]:
         """Get process manager monitoring configuration"""
         return self._section_providers['process_manager'].get_monitoring_config()
+    
+    # API specific methods (now part of app configuration)
+    def get_api_config(self) -> Dict[str, Any]:
+        """Get API configuration from app section"""
+        return {
+            "prefix": self.get("app.api_prefix", "/api/v1"),
+            "tags": self.get("app.api_tags", ["API"])
+        }
+    
+    def get_api_prefix(self) -> str:
+        """Get API prefix from app configuration"""
+        return self.get("app.api_prefix", "/api/v1")
+    
+    def get_api_tags(self) -> List[str]:
+        """Get API tags from app configuration"""
+        return self.get("app.api_tags", ["API"])
     
     # Utility methods
     def validate_config(self) -> bool:

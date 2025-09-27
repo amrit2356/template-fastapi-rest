@@ -4,7 +4,8 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 
-# from src.api.routes import router
+from src.api.routes import router, get_dynamic_endpoints
+# Direct service registration without separate initialization module
 from src.core.server_manager import create_server_manager, ServerManager
 from src.core.process_manager import create_process_manager, ProcessManager
 from src.core.managers import get_server_manager, get_process_manager
@@ -114,7 +115,7 @@ if cors_config:
     )
 
 # Include API routes
-# app.include_router(router)
+app.include_router(router)
 
 @app.get("/status")
 async def get_status(request: Request):
@@ -123,7 +124,79 @@ async def get_status(request: Request):
     
     return {
         "server_status": server_mgr.get_server_status() if server_mgr else None,
-        "process_metrics": process_mgr.get_metrics() if process_mgr else None
+        "process_metrics": process_mgr.get_metrics() if process_mgr else None,
+        "api_services": server_mgr.get_services_status() if server_mgr else None
+    }
+
+@app.get("/", include_in_schema=False)
+async def root():
+    """
+    Root endpoint providing comprehensive information about the FastAPI template.
+    """
+    api_prefix = settings.get_api_prefix()
+    
+    # Get service information (simplified for root endpoint)
+    services_info = {}
+    
+    return {
+        # Basic service information
+        "service": settings.get("app.name", "FastAPI REST Template"),
+        "version": settings.get("app.version", "1.0.0"),
+        "description": settings.get("app.description", "Production-ready FastAPI REST API Template"),
+        "environment": settings.get_environment(),
+        
+        # Template information
+        "template_info": {
+            "type": "FastAPI REST API Template",
+            "features": [
+                "Production-ready API structure",
+                "Health monitoring and status checks",
+                "Data CRUD operations",
+                "File upload capabilities",
+                "Process tracking and logging",
+                "Configuration-driven services",
+                "Error handling and validation",
+                "Session tracking"
+            ],
+            "architecture": {
+                "core_services": ["item_service", "document_service"],
+                "endpoints": sum(len(category) for category in get_dynamic_endpoints().values()),
+                "models": 5,
+                "handlers": 1
+            }
+        },
+        
+        # API documentation and endpoints
+        "api": {
+            "prefix": api_prefix,
+            "docs": "/docs",
+            "openapi": "/openapi.json",
+            "endpoints": get_dynamic_endpoints()
+        },
+        
+        # Quick access links
+        "quick_access": {
+            "health_check": f"{api_prefix}/health",
+            "system_status": "/status",
+            "api_info": f"{api_prefix}/info",
+            "interactive_docs": "/docs",
+            "openapi_spec": "/openapi.json"
+        },
+        
+        # Service status
+        "services": {
+            "total_services": len(services_info),
+            "active_services": len([s for s in services_info.values() if s.get("initialized", False)]),
+            "service_details": services_info
+        },
+        
+        # Configuration summary
+        "configuration": {
+            "debug_mode": settings.get("app.debug", False),
+            "cors_enabled": bool(settings.get_cors_config()),
+            "upload_directory": settings.get("server_manager.directories.uploads", "runtime/uploads"),
+            "temp_directory": settings.get("server_manager.directories.temp", "runtime/temp")
+        }
     }
 
 # Custom shutdown handler for uvicorn

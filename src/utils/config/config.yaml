@@ -9,6 +9,9 @@ app:
   assets_dir: "runtime/assets"
   max_file_size: "10MB"
   allowed_file_types: ["jpg", "jpeg", "png", "pdf", "txt"]
+  # API Configuration (universal for the whole app)
+  api_prefix: "/api/v1"
+  api_tags: ["API"]
 
 # Server Configuration
 server:
@@ -108,6 +111,25 @@ server_manager:
         max_workers: 4
         compress_images: true
         preserve_metadata: true
+    
+    # Core API services
+    item_service:
+      enabled: true
+      initialization_timeout: 5.0
+      shutdown_timeout: 2.0
+      dependencies: []
+      config:
+        max_items: 10000
+        auto_cleanup: true
+    
+    document_service:
+      enabled: true
+      initialization_timeout: 5.0
+      shutdown_timeout: 2.0
+      dependencies: []
+      config:
+        max_file_size: 104857600  # 100MB
+        allowed_extensions: [".pdf", ".doc", ".docx", ".txt", ".md", ".jpg", ".png"]
 
 # Process Manager Configuration (Legacy - for backward compatibility)
 process_manager:
