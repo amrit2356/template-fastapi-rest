@@ -70,35 +70,60 @@ def setup_security_middleware(app: FastAPI, security_mgr: SecurityManager) -> No
         logger.info("Basic CORS middleware added (security disabled)")
 
 
+def create_app() -> FastAPI:
+    """
+    Create and configure the FastAPI application.
+    This function sets up middleware before the app starts.
+    """
+    # Validate configuration first
+    if not settings.validate_config():
+        logger.error("Configuration validation failed")
+        raise RuntimeError("Configuration validation failed")
+    
+    # Print configuration summary in development
+    if settings.is_development():
+        settings.print_config_summary()
+    
+    # Initialize security manager
+    logger.info("Initializing security manager...")
+    global security_manager
+    security_manager = create_security_manager_from_settings()
+    if security_manager.is_enabled():
+        logger.info(f"Security enabled with auth type: {security_manager.get_config().get('auth_type', 'unknown')}")
+    else:
+        logger.info("Security is disabled")
+    
+    # Create FastAPI application
+    app = FastAPI(
+        title=settings.get("app.name", "FastAPI REST Template"),
+        description=settings.get("app.description", "FastAPI REST API Template"),
+        version=settings.get("app.version", "1.0.0"),
+        lifespan=lifespan,
+        debug=settings.get("app.debug", False)
+    )
+    
+    # Setup security middleware BEFORE including routes
+    setup_security_middleware(app, security_manager)
+    
+    # Include API routes
+    app.include_router(router)
+    app.include_router(root_router)
+    
+    return app
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """
     Handle application lifespan events (startup and shutdown)
     with integrated server and process management
     """
-    global server_manager, process_manager, security_manager
+    global server_manager, process_manager
     
     # Startup logic
     logger.info(f"Starting {settings.get('app.name', 'FastAPI App')}")
     
     try:
-        # Validate configuration
-        if not settings.validate_config():
-            logger.error("Configuration validation failed")
-            raise RuntimeError("Configuration validation failed")
-        
-        # Print configuration summary in development
-        if settings.is_development():
-            settings.print_config_summary()
-        
-        # Initialize security manager
-        logger.info("Initializing security manager...")
-        security_manager = create_security_manager_from_settings()
-        if security_manager.is_enabled():
-            logger.info(f"Security enabled with auth type: {security_manager.get_config().get('auth_type', 'unknown')}")
-        else:
-            logger.info("Security is disabled")
-        
         # Initialize process manager
         logger.info("Initializing process manager...")
         process_manager = create_process_manager()
@@ -121,9 +146,6 @@ async def lifespan(app: FastAPI):
         app.state.server_manager = server_manager
         app.state.process_manager = process_manager
         app.state.security_manager = security_manager
-        
-        # Setup security middleware
-        setup_security_middleware(app, security_manager)
         
         logger.info(f"{settings.get('app.name', 'FastAPI App')} started successfully")
         logger.info("All services and components are ready")
@@ -157,20 +179,8 @@ async def lifespan(app: FastAPI):
         # Don't re-raise the exception to allow FastAPI to complete shutdown
 
 
-# Create FastAPI application with lifespan manager
-app = FastAPI(
-    title=settings.get("app.name", "FastAPI REST Template"),
-    description=settings.get("app.description", "FastAPI REST API Template"),
-    version=settings.get("app.version", "1.0.0"),
-    lifespan=lifespan,
-    debug=settings.get("app.debug", False)
-)
-
-# Security middleware will be set up in the lifespan function
-
-# Include API routes
-app.include_router(router)
-app.include_router(root_router)
+# Create the FastAPI application
+app = create_app()
 
 
 # Run the application if executed directly

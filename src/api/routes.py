@@ -229,7 +229,7 @@ async def get_status(request: Request):
     description="Root endpoint providing comprehensive information about the FastAPI template.",
     include_in_schema=False
 )
-async def root():
+async def root(request: Request):
     """
     Root endpoint providing comprehensive information about the FastAPI template.
     """
@@ -237,6 +237,13 @@ async def root():
     
     # Get service information (simplified for root endpoint)
     services_info = {}
+    
+    # Get security manager from app state to check CORS configuration
+    security_mgr = getattr(request.app.state, 'security_manager', None)
+    cors_enabled = False
+    if security_mgr and security_mgr.is_enabled():
+        cors_config = security_mgr.get_cors_config()
+        cors_enabled = bool(cors_config)
     
     return {
         # Basic service information
@@ -293,7 +300,7 @@ async def root():
         # Configuration summary
         "configuration": {
             "debug_mode": settings.get("app.debug", False),
-            "cors_enabled": bool(settings.get_cors_config()),
+            "cors_enabled": cors_enabled,  # Fixed: use security manager instead of deprecated method
             "upload_directory": settings.get("server_manager.directories.uploads", "runtime/uploads"),
             "temp_directory": settings.get("server_manager.directories.temp", "runtime/temp")
         }

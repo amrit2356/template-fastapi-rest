@@ -85,8 +85,8 @@ class ProductionValidator(BaseConfigValidator):
     def _validate_impl(self, config: Dict[str, Any]) -> bool:
         """Validate production requirements"""
         try:
-            # Check JWT secret key
-            jwt_secret = self._get_nested_value(config, "jwt.secret_key")
+            # Check JWT secret key - fix the path to match config.yaml structure
+            jwt_secret = self._get_nested_value(config, "security.jwt_secret_key")
             if not jwt_secret or jwt_secret == "your-secret-key-here":
                 self._add_error("JWT secret key not configured for production")
                 return False
