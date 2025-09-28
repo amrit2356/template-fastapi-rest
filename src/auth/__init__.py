@@ -14,7 +14,7 @@ Features:
 - Easy enable/disable via configuration
 
 Usage:
-    from src.utils.security import SecurityManager
+    from src.auth import SecurityManager
     
     # Initialize security manager
     security = SecurityManager()
@@ -326,13 +326,13 @@ def get_security_config_from_settings() -> Dict[str, Any]:
         Security configuration dictionary
     """
     try:
-        from ..config.settings import settings
+        from ..utils.config.settings import settings
         return settings.get("security", {})
     except ImportError:
         return {}
 
 
-def create_security_manager_from_settings() -> SecurityManager:
+def create_security_manager() -> SecurityManager:
     """
     Create a security manager using configuration from settings.
     
