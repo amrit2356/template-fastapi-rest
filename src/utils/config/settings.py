@@ -181,8 +181,9 @@ class SettingsManager:
     
     # Server Manager specific methods
     def get_server_manager_app_config(self) -> Dict[str, Any]:
-        """Get server manager app configuration"""
-        return self._section_providers['server_manager'].get_app_config()
+        """Get server manager app configuration - DEPRECATED: Use app config instead"""
+        print("⚠️ WARNING: get_server_manager_app_config() is deprecated. Use get_app_config() instead.")
+        return self.get_app_config()
     
     def get_server_manager_directories_config(self) -> Dict[str, Any]:
         """Get server manager directories configuration"""
@@ -257,6 +258,68 @@ class SettingsManager:
         """Get API tags from app configuration"""
         return self.get("app.api_tags", ["API"])
     
+    # Security configuration methods
+    def get_security_config(self) -> Dict[str, Any]:
+        """Get security configuration"""
+        return self.get("security", {})
+    
+    def is_security_enabled(self) -> bool:
+        """Check if security is enabled"""
+        return self.get("security.enabled", True)
+    
+    def get_auth_type(self) -> str:
+        """Get authentication type"""
+        return self.get("security.auth_type", "jwt")
+    
+    def get_jwt_config(self) -> Dict[str, Any]:
+        """Get JWT configuration"""
+        return {
+            "secret_key": self.get("security.jwt_secret_key"),
+            "algorithm": self.get("security.jwt_algorithm", "HS256"),
+            "access_token_expire_minutes": self.get("security.jwt_access_token_expire_minutes", 30),
+            "refresh_token_expire_days": self.get("security.jwt_refresh_token_expire_days", 7),
+            "issuer": self.get("security.jwt_issuer", "fastapi-rest-template")
+        }
+    
+    def get_api_key_config(self) -> Dict[str, Any]:
+        """Get API key configuration"""
+        return {
+            "header": self.get("security.api_key_header", "X-API-Key"),
+            "query_param": self.get("security.api_key_query_param", "api_key"),
+            "length": self.get("security.api_key_length", 32)
+        }
+    
+    def get_security_paths_config(self) -> Dict[str, Any]:
+        """Get security paths configuration"""
+        return {
+            "excluded_paths": self.get("security.excluded_paths", [
+                "/docs", "/redoc", "/openapi.json", "/health", "/metrics"
+            ]),
+            "protected_paths": self.get("security.protected_paths", ["/api/v1"])
+        }
+    
+    def get_rate_limit_config(self) -> Dict[str, Any]:
+        """Get rate limiting configuration"""
+        return {
+            "enabled": self.get("security.rate_limit_enabled", True),
+            "requests_per_minute": self.get("security.rate_limit_requests_per_minute", 60),
+            "burst_size": self.get("security.rate_limit_burst_size", 10)
+        }
+    
+    def get_cors_config(self) -> Dict[str, Any]:
+        """
+        Get CORS configuration - DEPRECATED: Use security_manager.get_cors_config() instead.
+        This method is kept for backward compatibility but should not be used.
+        """
+        print("⚠️ WARNING: get_cors_config() is deprecated. Use security_manager.get_cors_config() instead.")
+        return {
+            "allow_origins": ["*"],  # Default fallback
+            "allow_credentials": True,
+            "allow_methods": ["*"],
+            "allow_headers": ["*"],
+            "expose_headers": ["*"]
+        }
+    
     # Utility methods
     def validate_config(self) -> bool:
         """Validate configuration settings"""
@@ -287,9 +350,8 @@ class SettingsManager:
         # Server Manager info
         server_manager_config = self.get_server_manager_config()
         if server_manager_config:
-            app_name = server_manager_config.get('app', {}).get('name', 'unknown')
             housekeeping_interval = server_manager_config.get('housekeeping', {}).get('interval', 'N/A')
-            print(f"   Server Manager: {app_name}")
+            print(f"   Server Manager: Active")
             print(f"   Housekeeping Interval: {housekeeping_interval}s")
         
         # Process Manager info (legacy)
@@ -308,6 +370,15 @@ class SettingsManager:
         if api_keys:
             configured_keys = [key for key, value in api_keys.items() if value and value != f"${{{key.upper()}}}" and not value.startswith("${")]
             print(f"   API Keys: {len(configured_keys)} configured")
+        
+        # Security info
+        security_enabled = self.is_security_enabled()
+        auth_type = self.get_auth_type()
+        print(f"   Security: {'enabled' if security_enabled else 'disabled'}")
+        if security_enabled:
+            print(f"   Auth Type: {auth_type}")
+            rate_limit_enabled = self.get_rate_limit_config().get('enabled', False)
+            print(f"   Rate Limiting: {'enabled' if rate_limit_enabled else 'disabled'}")
         
         # Directories
         print(f"   Temp Dir: {self.get('app.temp_dir', 'temp')}")

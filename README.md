@@ -8,7 +8,7 @@
 ![Configuration](https://img.shields.io/badge/Configuration-Advanced-green.svg)
 ![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)
 
-A production-ready FastAPI REST template with streamlined API design, comprehensive server management, and plug-and-play architecture. Built with clean architecture principles, featuring 8 focused endpoints, dynamic endpoint discovery, and enterprise-grade configuration handling.
+A production-ready FastAPI REST template with streamlined API design, comprehensive server management, enterprise-grade security, and plug-and-play architecture. Built with clean architecture principles, featuring 8 focused endpoints, dynamic endpoint discovery, and enterprise-grade configuration handling.
 
 ## ✨ Features
 
@@ -17,7 +17,9 @@ A production-ready FastAPI REST template with streamlined API design, comprehens
 - 📊 **Process Management**: Both stateful and stateless process management with automatic cleanup
 - 🏗️ **Server Management**: Comprehensive server lifecycle with graceful shutdown and signal handling
 - 📝 **Structured Logging**: Advanced logging with file rotation and configurable levels
-- 🔒 **Security Ready**: JWT authentication, API key management, and CORS configuration
+- 🔒 **Enterprise Security**: JWT authentication, API key management, hybrid auth, rate limiting, and CORS configuration
+- 🛡️ **Auto-Protection Middleware**: Automatically secures endpoints based on configuration
+- 🔑 **Multiple Auth Methods**: JWT Bearer tokens, API Keys, and Hybrid authentication support
 - 📁 **File Management**: Intelligent file tracking and cleanup with orphaned file detection
 - 🎯 **Clean Architecture**: Modular design with clear separation of concerns
 - ⚡ **Performance Monitoring**: Built-in metrics and health checks
@@ -31,6 +33,7 @@ A production-ready FastAPI REST template with streamlined API design, comprehens
 - [Project Structure](#-project-structure) - Understanding the codebase
 - [Configuration](#️-configuration) - Comprehensive configuration guide
 - [API Documentation](#-api-documentation) - Production-ready API endpoints
+- [Security & Authentication](#-security--authentication) - Enterprise-grade security system
 - [Advanced Usage](#️-advanced-usage) - Custom services and process management
 
 ### Development & Deployment
@@ -82,14 +85,14 @@ SERVER_HOST=0.0.0.0
 SERVER_PORT=8000
 SERVER_RELOAD=true
 
+# Security Configuration (Required for authentication)
+JWT_SECRET_KEY=your_super_secret_jwt_key_change_this_in_production
+
 # API Keys (for external services)
 OPENAI_API_KEY=your_openai_key
 ANTHROPIC_API_KEY=your_anthropic_key
 GOOGLE_API_KEY=your_google_key
 CUSTOM_API_KEY=your_custom_key
-
-# JWT Configuration
-JWT_SECRET_KEY=your_jwt_secret_key
 
 # Logging Configuration
 LOG_LEVEL=INFO
@@ -116,6 +119,19 @@ server:
   port: 8000
   reload: false
   workers: 1
+
+# Security Configuration
+security:
+  enabled: true
+  auth_type: "jwt"  # jwt, api_key, hybrid, none
+  jwt_secret_key: "${JWT_SECRET_KEY}"
+  jwt_algorithm: "HS256"
+  jwt_access_token_expire_minutes: 30
+  jwt_refresh_token_expire_days: 7
+  rate_limit_enabled: true
+  rate_limit_requests_per_minute: 60
+  excluded_paths: ["/docs", "/health", "/metrics"]
+  protected_paths: ["/api/v1"]
 
 # Process Manager Configuration
 process_manager:
@@ -170,8 +186,8 @@ template-fastapi-rest/
 ├── pyproject.toml            # Project configuration and dependencies
 ├── README.md                 # This file
 ├── LICENSE                   # MIT License
-├── PRODUCTION_API.md         # Streamlined API documentation
-├── API_INTEGRATION.md        # API integration guide
+├── docs/                     # Documentation
+│   └── AUTH.md              # Comprehensive security documentation
 ├── src/
 │   ├── api/                  # Streamlined API layer (8 endpoints)
 │   │   ├── routes.py         # Production-ready REST endpoints
@@ -188,6 +204,18 @@ template-fastapi-rest/
 │       │   ├── config.yaml   # Default configuration
 │       │   ├── settings.py   # Settings manager
 │       │   └── modules/      # Configuration modules
+│       ├── auth/             # Enterprise-grade security module
+│       │   ├── __init__.py   # Security manager and factory
+│       │   ├── auth_factory.py # Authentication factory
+│       │   ├── middleware.py # Auto-protection middleware
+│       │   ├── models.py     # Security models and types
+│       │   ├── example_integration.py # Integration examples
+│       │   ├── test_security.py # Security testing utilities
+│       │   └── handlers/     # Authentication handlers
+│       │       ├── __init__.py
+│       │       ├── jwt_handler.py      # JWT Bearer token auth
+│       │       ├── api_key_handler.py  # API Key authentication
+│       │       └── hybrid_handler.py   # Hybrid JWT + API Key auth
 │       ├── resources/        # Resource management
 │       │   ├── logger.py     # Logging configuration
 │       │   ├── downloader.py # Resource downloader
@@ -212,6 +240,94 @@ template-fastapi-rest/
     ├── CODE_OF_CONDUCT.md    # Community standards
     └── SECURITY.md           # Security policy
 ```
+
+## 🔒 Security & Authentication
+
+The template includes a comprehensive, enterprise-grade security system with multiple authentication methods and automatic endpoint protection.
+
+### Key Security Features
+
+- **🔐 Multiple Authentication Methods**: JWT Bearer tokens, API Keys, and Hybrid authentication
+- **🛡️ Auto-Protection Middleware**: Automatically secures endpoints based on configuration
+- **⚡ Rate Limiting**: Built-in rate limiting with configurable limits
+- **🎯 Easy Configuration**: Configure everything via `config.yaml` - no code changes needed
+- **🚀 Production Ready**: Secure by default with proper error handling and logging
+- **🔄 Flexible**: Easy to enable/disable and customize for different environments
+
+### Quick Security Setup
+
+1. **Set JWT Secret Key**:
+```bash
+export JWT_SECRET_KEY="your-super-secret-jwt-key-change-this-in-production"
+```
+
+2. **Configure Security** (in `config.yaml`):
+```yaml
+security:
+  enabled: true
+  auth_type: "jwt"  # jwt, api_key, hybrid, none
+  jwt_secret_key: "${JWT_SECRET_KEY}"
+  rate_limit_enabled: true
+  excluded_paths: ["/docs", "/health", "/metrics"]
+  protected_paths: ["/api/v1"]
+```
+
+3. **That's it!** Your API is now automatically secured.
+
+### Authentication Methods
+
+#### JWT Authentication
+```bash
+# Login to get JWT token
+curl -X POST "http://localhost:8000/api/v1/auth/login" \
+     -H "Content-Type: application/x-www-form-urlencoded" \
+     -d "username=admin&password=admin123"
+
+# Use token in requests
+curl -X GET "http://localhost:8000/api/v1/items" \
+     -H "Authorization: Bearer YOUR_JWT_TOKEN"
+```
+
+#### API Key Authentication
+```bash
+# Use API key in header
+curl -X GET "http://localhost:8000/api/v1/items" \
+     -H "X-API-Key: your_api_key_here"
+
+# Or as query parameter
+curl -X GET "http://localhost:8000/api/v1/items?api_key=your_api_key_here"
+```
+
+#### Hybrid Authentication
+Supports both JWT and API Key authentication - tries JWT first, falls back to API Key.
+
+### Security Endpoints
+
+- `POST /api/v1/auth/login` - Login and get JWT token
+- `GET /api/v1/auth/refresh` - Refresh JWT token
+- `GET /api/v1/security/stats` - Security statistics (requires auth)
+
+### Default Test Credentials
+
+For testing purposes:
+- **Username**: `admin`
+- **Password**: `admin123`
+- **Roles**: `["admin", "user"]`
+- **Permissions**: `["read", "write", "admin"]`
+
+### Comprehensive Security Documentation
+
+For detailed security configuration, advanced usage, troubleshooting, and API reference, see:
+
+**📖 [docs/AUTH.md](docs/AUTH.md)** - Complete security module documentation
+
+This includes:
+- Detailed configuration options
+- Advanced authentication patterns
+- Security context usage
+- Error handling and troubleshooting
+- Production security considerations
+- Complete API reference
 
 ## 🎯 API Documentation
 
@@ -243,24 +359,27 @@ The template provides **8 focused, production-ready endpoints**:
 - **File Upload**: Local file storage with validation
 - **Dynamic Discovery**: Automatic endpoint discovery and categorization
 - **Health Monitoring**: Comprehensive service status and metrics
+- **🔒 Automatic Security**: All endpoints are automatically protected based on configuration
 
 ### Example Usage
 
 ```bash
-# Health check
+# Health check (public)
 curl -X GET "http://localhost:8000/api/v1/health"
 
-# Create data
+# Create data (requires authentication)
 curl -X POST "http://localhost:8000/api/v1/data" \
   -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
   -d '{"data": {"name": "example", "value": 123}, "project_id": "my-project"}'
 
-# Upload file
+# Upload file (requires authentication)
 curl -X POST "http://localhost:8000/api/v1/upload" \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
   -F "file=@document.pdf" \
   -F "project_id=my-project"
 
-# Get template information
+# Get template information (public)
 curl -X GET "http://localhost:8000/"
 ```
 
@@ -293,6 +412,19 @@ server:
   reload: false
   workers: 1
   timeout: 30
+
+# Security Configuration
+security:
+  enabled: true
+  auth_type: "jwt"  # jwt, api_key, hybrid, none
+  jwt_secret_key: "${JWT_SECRET_KEY}"
+  jwt_algorithm: "HS256"
+  jwt_access_token_expire_minutes: 30
+  jwt_refresh_token_expire_days: 7
+  rate_limit_enabled: true
+  rate_limit_requests_per_minute: 60
+  excluded_paths: ["/docs", "/health", "/metrics"]
+  protected_paths: ["/api/v1"]
 
 # Process Manager Configuration
 process_manager:
@@ -466,6 +598,7 @@ The system tracks comprehensive metrics:
 - **File Management**: Files cleaned, orphaned files detected
 - **Server Health**: Component status, resource usage
 - **Performance**: Response times, cleanup efficiency
+- **🔒 Security Metrics**: Authentication attempts, rate limit hits, security events
 
 ### Accessing Metrics
 
@@ -481,6 +614,12 @@ from src.core.managers import get_server_manager
 
 server_mgr = get_server_manager(request)
 status = server_mgr.get_server_status()
+
+# Get security statistics
+from src.utils.auth import get_security_manager
+
+security_mgr = get_security_manager()
+security_stats = security_mgr.get_stats()
 ```
 
 ## 🌍 Environment Variables
@@ -493,7 +632,7 @@ status = server_mgr.get_server_status()
 | `SERVER_HOST` | Server host address | 0.0.0.0 | No |
 | `SERVER_PORT` | Server port | 8000 | No |
 | `SERVER_RELOAD` | Enable auto-reload | false | No |
-| `JWT_SECRET_KEY` | JWT secret key | - | Yes (for auth) |
+| `JWT_SECRET_KEY` | JWT secret key | - | **Yes (for auth)** |
 | `OPENAI_API_KEY` | OpenAI API key | - | No |
 | `ANTHROPIC_API_KEY` | Anthropic API key | - | No |
 | `LOG_LEVEL` | Logging level | INFO | No |
@@ -525,6 +664,9 @@ export APP_DEBUG=false
 export LOG_LEVEL=WARNING
 export JWT_SECRET_KEY=your_secure_secret_key
 
+# Generate secure JWT secret
+export JWT_SECRET_KEY=$(python -c "import secrets; print(secrets.token_urlsafe(32))")
+
 # Configure CORS for production
 # Update config.yaml CORS settings
 ```
@@ -540,6 +682,9 @@ curl http://localhost:8000/status | jq '.process_metrics'
 
 # Get comprehensive template information
 curl http://localhost:8000/ | jq '.template_info'
+
+# Check security statistics
+curl -H "Authorization: Bearer YOUR_TOKEN" http://localhost:8000/api/v1/security/stats
 ```
 
 ## 🐛 Troubleshooting
@@ -551,12 +696,18 @@ curl http://localhost:8000/ | jq '.template_info'
    - Check environment variable names and values
    - Ensure all required directories exist
 
-2. **Process Management Issues**:
+2. **Security Issues**:
+   - **"JWT secret key not configured"**: Set the `JWT_SECRET_KEY` environment variable
+   - **"Authentication required"**: Check that your endpoint path is in `protected_paths`
+   - **"Rate limit exceeded"**: Adjust `rate_limit_requests_per_minute` in config
+   - **"Invalid token"**: Check token format and expiration
+
+3. **Process Management Issues**:
    - Check process TTL settings
    - Verify cleanup intervals
    - Monitor file tracking configuration
 
-3. **Server Management Issues**:
+4. **Server Management Issues**:
    - Verify signal handling setup
    - Check housekeeping intervals
    - Monitor service initialization order
@@ -583,6 +734,11 @@ curl http://localhost:8000/status | jq '.process_metrics'
 
 # Get dynamic endpoint information
 curl http://localhost:8000/ | jq '.api.endpoints'
+
+# Test authentication
+curl -X POST "http://localhost:8000/api/v1/auth/login" \
+     -H "Content-Type: application/x-www-form-urlencoded" \
+     -d "username=admin&password=admin123"
 ```
 
 ## 🧪 Testing
@@ -600,6 +756,9 @@ pytest tests/e2e/
 
 # Run with coverage
 pytest --cov=src tests/
+
+# Test security module specifically
+pytest src/utils/auth/test_security.py
 ```
 
 ### Test Structure
@@ -610,10 +769,12 @@ tests/
 ├── unit/                 # Unit tests
 │   ├── test_config.py    # Configuration tests
 │   ├── test_process_manager.py
-│   └── test_server_manager.py
+│   ├── test_server_manager.py
+│   └── test_auth.py      # Security tests
 ├── integration/          # Integration tests
 │   ├── test_api.py       # API integration tests
-│   └── test_services.py  # Service integration tests
+│   ├── test_services.py  # Service integration tests
+│   └── test_auth_integration.py # Security integration tests
 └── e2e/                  # End-to-end tests
     └── test_workflows.py # Complete workflow tests
 ```
@@ -652,6 +813,9 @@ pytest
 # Format code
 black src/ tests/
 isort src/ tests/
+
+# Test security integration
+python src/utils/auth/example_integration.py
 ```
 
 ### Detailed Information
@@ -672,14 +836,18 @@ We take security seriously and have established comprehensive security measures:
 - **Security Updates**: Regular dependency updates and security patches
 - **Code Review**: All changes require code review and security assessment
 - **Access Control**: Proper authentication and authorization mechanisms
+- **Enterprise-Grade Security**: JWT, API Keys, rate limiting, and automatic protection
 
 ### Security Best Practices
 
 - Keep dependencies updated
-- Use strong authentication methods
+- Use strong authentication methods (JWT with secure secrets)
 - Follow secure coding practices
 - Never commit secrets or sensitive data
 - Report vulnerabilities responsibly
+- Use HTTPS in production
+- Configure appropriate rate limits
+- Monitor authentication failures
 
 For detailed security information, incident response procedures, and vulnerability reporting, see our [Security Policy](.github/SECURITY.md).
 
@@ -692,11 +860,14 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - Built with [FastAPI](https://fastapi.tiangolo.com/) for high-performance web APIs
 - Configuration management inspired by modern microservice patterns
 - Process management designed for both monolithic and distributed architectures
+- Enterprise-grade security system with multiple authentication methods
 - Logging and monitoring following enterprise best practices
 
 ---
 
 ## 📈 Roadmap
+- [x] **Enterprise-grade Security Module**: JWT, API Keys, Hybrid auth, rate limiting
+- [x] **Auto-Protection Middleware**: Automatic endpoint security
 - [ ] **Github Actions: Testing, Deployment, AutoDocumentation**
 - [ ] **Detailed Documentation with jupyter-notebook tutorials**
 - [ ] **Detailed Testing for the API system**
@@ -704,7 +875,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - [ ] **Kubernetes deployment manifests**
 - [ ] **Advanced metrics and monitoring dashboard**
 - [ ] **Database integration examples**
-- [ ] **Authentication and authorization examples**
 - [ ] **Advanced caching strategies**
 - [ ] **Rate limiting implementation**
 - [ ] **API versioning examples**
