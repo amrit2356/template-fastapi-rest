@@ -6,11 +6,11 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from src.api.routes import router, root_router
 # Direct service registration without separate initialization module
+from src.auth import create_security_manager, SecurityManager
 from src.core.server_manager import create_server_manager, ServerManager
 from src.core.process_manager import create_process_manager, ProcessManager
 from src.utils.resources.logger import logger
 from src.utils.config.settings import settings
-from src.utils.security import create_security_manager_from_settings, SecurityManager
 
 
 # Global instances for server and process management
@@ -87,7 +87,7 @@ def create_app() -> FastAPI:
     # Initialize security manager
     logger.info("Initializing security manager...")
     global security_manager
-    security_manager = create_security_manager_from_settings()
+    security_manager = create_security_manager()
     if security_manager.is_enabled():
         logger.info(f"Security enabled with auth type: {security_manager.get_config().get('auth_type', 'unknown')}")
     else:
