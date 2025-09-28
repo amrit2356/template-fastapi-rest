@@ -10,11 +10,64 @@ from src.core.server_manager import create_server_manager, ServerManager
 from src.core.process_manager import create_process_manager, ProcessManager
 from src.utils.resources.logger import logger
 from src.utils.config.settings import settings
+from src.utils.security import create_security_manager_from_settings, SecurityManager
 
 
 # Global instances for server and process management
 server_manager: ServerManager = None
 process_manager: ProcessManager = None
+security_manager: SecurityManager = None
+
+
+def get_security_manager() -> SecurityManager:
+    """
+    Get the global security manager instance.
+    
+    Returns:
+        SecurityManager instance
+    """
+    global security_manager
+    return security_manager
+
+
+def setup_security_middleware(app: FastAPI, security_mgr: SecurityManager) -> None:
+    """
+    Setup security and CORS middleware for the FastAPI application.
+    
+    Args:
+        app: FastAPI application instance
+        security_mgr: Security manager instance
+    """
+    if security_mgr.is_enabled():
+        # Add security middleware
+        SecurityMiddleware = security_mgr.get_middleware()
+        app.add_middleware(SecurityMiddleware)
+        logger.info("Security middleware added to application")
+        
+        # Add CORS middleware from security configuration
+        cors_config = security_mgr.get_cors_config()
+        app.add_middleware(
+            CORSMiddleware,
+            allow_origins=cors_config.get("allow_origins", ["*"]),
+            allow_credentials=cors_config.get("allow_credentials", True),
+            allow_methods=cors_config.get("allow_methods", ["*"]),
+            allow_headers=cors_config.get("allow_headers", ["*"]),
+            expose_headers=cors_config.get("expose_headers", ["*"])
+        )
+        logger.info("CORS middleware added from security configuration")
+    else:
+        logger.info("Security is disabled - no security middleware added")
+        
+        # Add basic CORS when security is disabled
+        app.add_middleware(
+            CORSMiddleware,
+            allow_origins=["*"],
+            allow_credentials=True,
+            allow_methods=["*"],
+            allow_headers=["*"],
+            expose_headers=["*"]
+        )
+        logger.info("Basic CORS middleware added (security disabled)")
 
 
 @asynccontextmanager
@@ -23,7 +76,7 @@ async def lifespan(app: FastAPI):
     Handle application lifespan events (startup and shutdown)
     with integrated server and process management
     """
-    global server_manager, process_manager
+    global server_manager, process_manager, security_manager
     
     # Startup logic
     logger.info(f"Starting {settings.get('app.name', 'FastAPI App')}")
@@ -37,6 +90,14 @@ async def lifespan(app: FastAPI):
         # Print configuration summary in development
         if settings.is_development():
             settings.print_config_summary()
+        
+        # Initialize security manager
+        logger.info("Initializing security manager...")
+        security_manager = create_security_manager_from_settings()
+        if security_manager.is_enabled():
+            logger.info(f"Security enabled with auth type: {security_manager.get_config().get('auth_type', 'unknown')}")
+        else:
+            logger.info("Security is disabled")
         
         # Initialize process manager
         logger.info("Initializing process manager...")
@@ -59,6 +120,10 @@ async def lifespan(app: FastAPI):
         # Store managers in app state for access in routes
         app.state.server_manager = server_manager
         app.state.process_manager = process_manager
+        app.state.security_manager = security_manager
+        
+        # Setup security middleware
+        setup_security_middleware(app, security_manager)
         
         logger.info(f"{settings.get('app.name', 'FastAPI App')} started successfully")
         logger.info("All services and components are ready")
@@ -101,17 +166,7 @@ app = FastAPI(
     debug=settings.get("app.debug", False)
 )
 
-# Setup CORS middleware
-cors_config = settings.get_cors_config()
-if cors_config:
-    app.add_middleware(
-        CORSMiddleware,
-        allow_origins=cors_config.get("allow_origins", ["*"]),
-        allow_credentials=cors_config.get("allow_credentials", True),
-        allow_methods=cors_config.get("allow_methods", ["*"]),
-        allow_headers=cors_config.get("allow_headers", ["*"]),
-        expose_headers=cors_config.get("expose_headers", ["*"])
-    )
+# Security middleware will be set up in the lifespan function
 
 # Include API routes
 app.include_router(router)
