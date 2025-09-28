@@ -201,7 +201,7 @@ storage:
 # Security Configuration
 security:
   # Enable/disable security module
-  enabled: true
+  enabled: false
   
   # Authentication type: jwt, api_key, hybrid, none
   auth_type: "jwt"
@@ -210,7 +210,7 @@ security:
   default_security_level: "protected"
   
   # JWT Configuration
-  jwt_secret_key: "${JWT_SECRET_KEY}"  # Will be replaced with environment variable
+  jwt_secret_key: "your-super-secret-jwt-key-change-this-in-production-123456789"  # Change this!
   jwt_algorithm: "HS256"
   jwt_access_token_expire_minutes: 30
   jwt_refresh_token_expire_days: 7
